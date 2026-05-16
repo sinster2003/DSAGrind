@@ -18,6 +18,8 @@ class SpaceOptimization {
         }
 
         for(int i = 1; i < N + 1; i++) {
+            dp2 = new int[N + 1]; // optional for unbounded knapsack pattern
+
             for(int j = 1; j < N + 1; j++) {
                 if(i > j) {
                     // len < ind

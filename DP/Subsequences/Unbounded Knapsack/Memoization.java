@@ -1,5 +1,6 @@
 // similar to rod cutting problem
 // infinite supply of cuts (here items)
+import java.util.Arrays;
 
 class Memoization {
     // memoization - top down approach - memoize the result of overlapping sub problems

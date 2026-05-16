@@ -2,6 +2,7 @@
 // 1. Choice (either cut or not cut) -> Recursion -> DP
 // 2. Sub problems can be used to solve the entire problem
 // 3. Maximum of 2 dynamic parameters in the recursive function
+import java.util.Arrays;
 
 class Tabulation {
     // tabulation approach - bottom up approach

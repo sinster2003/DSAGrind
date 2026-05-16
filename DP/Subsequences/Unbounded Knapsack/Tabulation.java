@@ -1,5 +1,6 @@
 // similar to rod cutting problem
 // infinite supply of cuts (here items)
+import java.util.Arrays;
 
 class Tabulation {
     // tabulation - bottom up approach

@@ -15,6 +15,8 @@ class SpaceOptimization {
         }
 
         for(int i = 1; i < n + 1; i++) {
+            curr = new int[W + 1]; // optional for unbounded knapsack pattern
+
             for(int j = 1; j < W + 1; j++) {
                 int pick = 0;
 

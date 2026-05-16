@@ -2,6 +2,7 @@
 // 1. Choice (either cut or not cut) -> Recursion -> DP
 // 2. Sub problems can be used to solve the entire problem
 // 3. Maximum of 2 dynamic parameters in the recursive function
+import java.util.Arrays;
 
 class Memoization {
     // memoization approach - memoize result of the overlapping subproblem
