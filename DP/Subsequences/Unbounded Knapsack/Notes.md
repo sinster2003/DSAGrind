@@ -1,161 +1,102 @@
-# Unbounded Knapsack & Rod Cutting — Lifelong Notes
+# Unbounded Knapsack / Rod Cutting
 
-> **Pattern Family:** Unbounded Knapsack DP
-> **Twin Problems:** Unbounded Knapsack ↔ Rod Cutting
-> **Core Idea:** After picking an item, you are allowed to pick it again.
-
----
-
-# 1. Pattern Trigger 🚨
-
-Whenever you see:
-
-* Infinite supply of items
-* Can use same item multiple times
-* Cut rod into pieces repeatedly
-* Coin denomination can be reused
-* Length/weight can be consumed repeatedly
-
-Think:
+## Pattern Trigger
 
 ```text
-0/1 Knapsack?
+Infinite Supply
 ↓
-Can I reuse the same item?
-
-YES
+Pick does NOT reduce index
 ↓
-UNBOUNDED KNAPSACK
+Unbounded Knapsack
 ```
 
 ---
 
-# 2. Mental Model
+# State
 
-Imagine a shop:
-
-```text
-Weight  Value
-
-2       5
-4       11
-6       13
+```java
+func(ind, W)
 ```
 
-Capacity = 10
+```text
+Maximum value obtainable
+using items [0...ind]
+with capacity W
+```
 
-In 0/1 Knapsack:
+---
+
+# Recurrence
+
+```java
+pick =
+val[ind] +
+func(ind, W - wt[ind])
+
+notpick =
+func(ind - 1, W)
+```
 
 ```text
-Take item once
-and move left
+Pick -> Same Index
+Not Pick -> Previous Index
+```
 
-pick
+---
+
+# Base Cases
+
+```java
+if(W <= 0) return 0;
+if(ind < 0) return 0;
+```
+
+---
+
+# Approach 1 : Recursion
+
+### Core Idea
+
+```text
+Try Pick / Not Pick
+
+Pick
 ↓
-ind - 1
-```
+Stay on same item
 
-In Unbounded Knapsack:
-
-```text
-Take item
-and keep item available
-
-pick
+Not Pick
 ↓
-same ind
+Move left
 ```
 
-Because:
+### Complexity
 
 ```text
-Infinite supply exists
+Time  : O(2^N × W) (Exponential)
+Space : O(W) recursion stack
+```
+
+### Recall Trigger
+
+```text
+Infinite Supply
+↓
+pick keeps same index
 ```
 
 ---
 
-# 3. Golden Difference from 0/1 Knapsack
+# Approach 2 : Memoization
 
-## 0/1 Knapsack
-
-```text
-pick
-=
-value[ind]
-+
-func(ind-1 , W-weight[ind])
-```
-
-Because item cannot be reused.
-
----
-
-## Unbounded Knapsack
+### Core Idea
 
 ```text
-pick
-=
-value[ind]
-+
-func(ind , W-weight[ind])
+Store repeated states
+
+dp[ind][W]
 ```
 
-Because item can be reused.
-
----
-
-# Entire Pattern in One Sentence
-
-```text
-0/1 Knapsack:
-Pick → move to previous item
-
-Unbounded Knapsack:
-Pick → stay on same item
-```
-
-This single line is the whole pattern.
-
----
-
-# 4. Recursion Tree Mindmap
-
-```text
-func(ind,W)
-
-                    (ind,W)
-                    /     \
-                 pick    notpick
-                  |         |
-                  |         |
-            (ind,W-wt)   (ind-1,W)
-                  |
-                  |
-            same index
-```
-
-Notice:
-
-```text
-pick branch
-never reduces index
-```
-
-That is exactly what creates:
-
-```text
-Infinite usage
-```
-
----
-
-# 5. State Definition
-
-```text
-func(ind,W)
-```
-
-Meaning:
+### State Meaning
 
 ```text
 Maximum value obtainable
@@ -163,560 +104,223 @@ using items [0...ind]
 for capacity W
 ```
 
+### Complexity
+
+```text
+Time  : O(N × W)
+Space : O(N × W) + recursion stack
+```
+
+### Recall Trigger
+
+```text
+Recursion
++
+Cache overlapping states
+```
+
 ---
 
-# 6. Base Cases
+# Approach 3 : Tabulation
 
-### Capacity exhausted
+### State
 
 ```java
-if(W <= 0)
-    return 0;
+dp[i][j]
 ```
-
-Meaning:
 
 ```text
-No space left.
-No value can be earned.
+Using first i items
+Capacity = j
 ```
 
----
-
-### No items left
-
-```java
-if(ind < 0)
-    return 0;
-```
-
-Meaning:
-
-```text
-Nothing available to pick.
-```
-
----
-
-# 7. Recurrence Flowchart
-
-```text
-func(ind,W)
-
-          |
-          v
-
-    Can pick item?
-
-      W>=wt[ind]
-          |
-     +----+----+
-     |         |
-    YES       NO
-     |         |
-     v         |
- pick branch   |
-     |         |
- value[ind]    |
- +             |
- func(ind,     |
-      W-wt)    |
-     |         |
-     +---------+
-
-notpick branch
-=
-func(ind-1,W)
-
-Answer
-=
-max(pick,notpick)
-```
-
----
-
-# 8. Why Pick Uses Same Index
-
-Most important interview question.
-
-Suppose:
-
-```text
-wt = 2
-val = 5
-
-Capacity = 10
-```
-
-Best answer:
-
-```text
-Take weight 2
-5 times
-```
-
-After picking first time:
-
-```text
-Remaining Capacity = 8
-```
-
-Can we take weight 2 again?
-
-```text
-YES
-```
-
-Therefore:
-
-```text
-func(ind,W-wt[ind])
-```
-
-not
-
-```text
-func(ind-1,W-wt[ind])
-```
-
----
-
-# 9. Memoization Visualization
-
-State:
-
-```text
-dp[ind][W]
-```
-
-Meaning:
-
-```text
-Maximum value
-using items [0...ind]
-for capacity W
-```
-
----
-
-Table shape:
-
-```text
-          Capacity
-
-      0 1 2 3 4 5 6 ...
-
-i=0
-
-i=1
-
-i=2
-
-i=3
-```
-
-Whenever same state appears:
-
-```text
-func(2,7)
-
-again
-
-func(2,7)
-```
-
-Reuse:
-
-```text
-dp[2][7]
-```
-
-instead of recomputing.
-
----
-
-# 10. Tabulation Translation
-
-Recursion:
-
-```text
-dp(ind,W)
-=
-max(
-    pick,
-    notpick
-)
-```
-
----
-
-Tabulation:
+### Transition
 
 ```java
 pick =
-val[i-1]
-+
+val[i-1] +
 dp[i][j-wt[i-1]]
+
+notpick =
+dp[i-1][j]
 ```
 
-Notice:
+### Critical Observation
 
 ```text
-dp[i]
-not
-dp[i-1]
-```
+Pick uses SAME ROW
 
-Again:
-
-```text
-same row
-=
-unbounded nature
-```
-
----
-
-# Memory Trick
-
-```text
-0/1 Knapsack
-pick → previous row
-
-Unbounded Knapsack
-pick → same row
-```
-
----
-
-# 11. Why Same Row Appears
-
-This is the deepest understanding point.
-
-In recursion:
-
-```text
-pick
-
-func(ind,W-wt[ind])
-```
-
-Index unchanged.
-
----
-
-In DP table:
-
-```text
-dp[i][j]
-```
-
-depends on
-
-```text
 dp[i][j-wt]
 ```
 
-same row
-
-because index never changed.
-
----
-
-Visualization:
+because
 
 ```text
-Current Cell
-
-dp[i][j]
-
-     ^
-     |
-     |
-dp[i][j-wt]
+pick does not change index
 ```
 
-Dependency remains in same row.
-
----
-
-# 12. Space Optimization Logic
-
-Tabulation:
+### Complexity
 
 ```text
-Current row depends on
-
-1. Previous row
-2. Same row
+Time  : O(NW)
+Space : O(NW)
 ```
 
-Therefore:
+### Recall Trigger
 
 ```text
-Only 2 rows needed
-```
-
----
-
-Flow:
-
-```text
-prev
-
+Same Index
 ↓
-
-curr
+Same Row
 ```
 
-For pick:
+---
+
+# Approach 4 : Two Array Optimization
+
+### Observation
+
+```text
+Current cell depends on:
+
+1. Previous Row
+2. Current Row Left
+```
 
 ```java
+pick =
 curr[j-wt]
-```
 
-For notpick:
-
-```java
+notpick =
 prev[j]
 ```
 
----
-
-# 13. Why Single Array Works
-
-Most important optimization idea.
-
-Observe:
+### Flow
 
 ```text
-pick
-=
+prev
+ ↓
+curr
+```
+
+### Complexity
+
+```text
+Time  : O(NW)
+Space : O(W)
+```
+
+### Recall Trigger
+
+```text
+Need current-left
+and previous-column
+↓
+2 arrays sufficient
+```
+
+---
+
+# Approach 5 : Single Array Optimization
+
+### Observation
+
+```text
+Never need
+prev[j-wt]
+```
+
+Need only:
+
+```java
+pick =
 curr[j-wt]
 
-notpick
-=
+notpick =
 curr[j]
 ```
 
-All information already exists inside same array.
-
----
-
-Flow:
+### Traversal
 
 ```text
-j = 0 → W
+Left → Right
+```
 
-keep updating
-same array
+### Why?
+
+```text
+Pick needs current-row left value.
+
+Current-row left value
+must already be computed.
+```
+
+### Mental Model
+
+```text
+Previous row gradually
+transforms into current row.
+```
+
+### Complexity
+
+```text
+Time  : O(NW)
+Space : O(W)
+```
+
+### Recall Trigger
+
+```text
+Infinite Supply
+↓
+Current Row Dependency
+↓
+Left → Right
+↓
+Single Array
 ```
 
 ---
 
-Visualization:
+# Rod Cutting Mapping
 
 ```text
-capacity →
+Rod Length  -> Capacity
 
-0 1 2 3 4 5 6 7
+Piece Length -> Weight
 
-↑
-already computed
-
-used for future states
+Price -> Value
 ```
 
----
-
-# 14. Rod Cutting Mapping
-
-The easiest conversion ever.
-
----
-
-Rod Cutting:
-
 ```text
-Rod Length = Capacity
-
-Piece Length = Weight
-
-Price = Value
-```
-
----
-
-Mapping:
-
-| Rod Cutting     | Unbounded Knapsack |
-| --------------- | ------------------ |
-| Rod Length      | Capacity W         |
-| Piece Length    | Weight             |
-| Price           | Value              |
-| Cut Piece Again | Reuse Item         |
-
----
-
-Example
-
-```text
-Rod Length = 8
-
-Lengths:
-1 2 3 4
-
-Prices:
-2 5 7 8
-```
-
-becomes
-
-```text
-wt =
-[1,2,3,4]
-
-val =
-[2,5,7,8]
-
-W = 8
-```
-
-Exact same code.
-
-No changes.
-
----
-
-# 15. Ultimate Pattern Recognition Chart
-
-```text
-Can item be reused?
-
-            |
-       +----+----+
-       |         |
-      NO        YES
-       |         |
-       |         |
-   0/1 Knapsack  Unbounded Knapsack
-       |         |
-       |         |
-pick    ind-1    ind
-       |         |
-       |         |
-tab     prev row same row
-```
-
----
-
-# Active Recall 🔥
-
-### Q1
-
-What is the only difference between 0/1 and Unbounded Knapsack?
-
-```text
-0/1:
-pick -> ind-1
-
-Unbounded:
-pick -> ind
-```
-
----
-
-### Q2
-
-Why does Unbounded Knapsack use same row in DP?
-
-```text
-Because recursion keeps same index
-after pick.
-```
-
----
-
-### Q3
-
-How do I identify Rod Cutting?
-
-```text
-Infinite supply of cuts.
-
-Each cut length behaves
-like an item weight.
-```
-
----
-
-### Q4
-
-Rod Length corresponds to what?
-
-```text
-Capacity W
-```
-
----
-
-### Q5
-
-Piece Length corresponds to what?
-
-```text
-Weight
-```
-
----
-
-### Q6
-
-Price corresponds to what?
-
-```text
-Value
-```
-
----
-
-# 30-Second Interview Summary
-
-```text
-Unbounded Knapsack is identical to 0/1 Knapsack except for one change:
-
-When an item is picked, we stay on the same index because the item can be reused infinitely.
-
-Recurrence:
-
-pick
+Rod Cutting
 =
-value[ind] + func(ind, W-wt[ind])
-
-notpick
-=
-func(ind-1, W)
-
-This same-index dependency translates into same-row dependency in tabulation:
-
-pick =
-value[i-1] + dp[i][j-wt[i-1]]
-
-Rod Cutting is the exact same pattern where:
-
-Rod Length → Capacity
-Piece Length → Weight
-Price → Value
+Unbounded Knapsack
 ```
 
-**Pattern Trigger to permanently remember:**
+Same recurrence.
+
+Same DP.
+
+Same optimizations.
+
+---
+
+# 15-Second Final Recall
 
 ```text
-INFINITE SUPPLY
-        ↓
-PICK DOES NOT CHANGE INDEX
-        ↓
-SAME ROW DEPENDENCY
-        ↓
-UNBOUNDED KNAPSACK / ROD CUTTING
+Infinite Supply
+↓
+Pick stays on same index
+↓
+pick = val + func(ind, W-wt)
+↓
+Tabulation uses SAME ROW
+↓
+dp[i][j-wt]
+↓
+Left → Right traversal
+↓
+Single Array Optimization
 ```
